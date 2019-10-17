@@ -26,7 +26,11 @@
   		<div class="col-lg-12">
     		<div class="box box-danger box-solid">
 	      		<div class="box-header with-border">
-			        <h3 class="box-title"><i class="fa fa-list-alt"></i> Consignaciones</h3>
+                    <span>
+                        <button type="button" data-toggle="modal" data-target="#busqueda_avanzada_consig" class="btn bg-navy">
+                            <i class="fa fa-search"></i> Busqueda avanzada
+                        </button>
+                    </span>
     		        <span class="pull-right">
                         <a href="{{ route('consignacion.create') }}" class="btn btn-danger">
        				        <i class="fa fa-plus" aria-hidden="true"></i> Nueva consignacion
@@ -134,7 +138,7 @@
 
     // mostrar y validar campos en consignacion y guia
     $(".btn_detalle_consig").click(function(e){
-        $.get('detalleConsig/'+$(this).data("id"), function(data) {
+        $.get('detalleConsig/'+$(this).data("id"), {view: 1}, function(data) {
             $("#icon-loading").show();
             
             $('.data-table').DataTable().destroy();

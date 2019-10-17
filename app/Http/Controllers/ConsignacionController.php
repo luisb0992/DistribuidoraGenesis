@@ -68,9 +68,15 @@ class ConsignacionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $id)
+    {   
+        return Consignacion::showConsig($id, $request);
+    }
+
+    // cargar datos de la consignacion - solo visualizacion
+    public function detalleConsigView($id)
     {
-        return Consignacion::showConsig($id);
+        return Consignacion::detalleConsigView($id);
     }
 
     /**
@@ -135,8 +141,8 @@ class ConsignacionController extends Controller
     }
 
     // cargar consignacion en select
-    public function cargarConsigSelect($cliente, $fecha)
+    public function cargarConsigSelect($cliente, $fecha, $nota, $guia)
     {
-        return Consignacion::cargarConsigSelect($cliente, $fecha);
+        return Consignacion::cargarConsigSelect($cliente, $fecha, $nota, $guia);
     }
 }

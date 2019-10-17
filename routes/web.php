@@ -38,9 +38,10 @@ Route::group(['middleware' => ['auth', 'web']], function() { //middleware auth
 
     // consignaciones
     Route::get('detalleConsig/{id}', 'ConsignacionController@show');
+    Route::get('detalleConsigView/{id}', 'ConsignacionController@detalleConsigView');
     Route::get('procesarVentaConsig/{id}', 'ConsignacionController@procesarVentaConsig')->name('procesarVentaConsig');
     Route::put('añadirModelos/{id}', 'ConsignacionController@añadirModelos')->name('añadirModelos');
-    Route::get('cargarConsigSelect/{cliente}/{fec}', 'ConsignacionController@cargarConsigSelect')->name('cargarConsigSelect');
+    Route::get('cargarConsigSelect/{cliente}/{fecha}/{nota}/{guia}', 'ConsignacionController@cargarConsigSelect')->name('cargarConsigSelect');
 
     // Guia de remision
     Route::get('cargarGuia/{id}', 'GuiaRemisionController@edit');

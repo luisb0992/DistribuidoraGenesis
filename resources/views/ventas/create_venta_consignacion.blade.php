@@ -63,6 +63,8 @@
         $(".btn_siguiente").attr("disabled", "disabled");
         var cliente = $("#cliente_bus").val();
         var fecha = $("#fecha_envio").val();
+        var notap = $("#nota_bus").val();
+        var guiar = $("#guia_bus").val();
 
         if (fecha) {
             var from = fecha.split("/");
@@ -72,6 +74,9 @@
             var fec = null;
         }
 
+        notap = (notap) ? notap : null;
+        guiar = (guiar) ? guiar : null;
+
         if (cliente == null) {
 
             mensajes("Alerta!", "Nada para mostrar", "fa-remove", "red");
@@ -80,9 +85,9 @@
 
             $("#icon-buscar-consig").show();
             $("#btn_buscar_consignacion").attr("disabled", "disabled");
+            var url ="cargarConsigSelect/"+cliente+"/"+fec+"/"+notap+"/"+guiar+"";
 
-            $.get('cargarConsigSelect/'+cliente+'/'+fec+'', function(data) {
-
+            $.get(url, function(data) {
                 $("#id_consignacion").empty().html(data);
                 $("#icon-buscar-consig").hide();
                 $("#btn_buscar_consignacion").removeAttr('disabled');

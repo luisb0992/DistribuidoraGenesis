@@ -34,7 +34,7 @@
                             </div>
 
                             <div class="col-lg-4">
-                                <label>Nº Serie</label> 
+                                <label>Nº Serie - Codigo</label> 
                                 <p class="list-group-item" id="serie"></p>
                             </div>
                             <div class="col-lg-4">
@@ -76,9 +76,7 @@
                                         <th>Monturas</th>
                                         <th>Estuches</th>
                                         <th class="text-nowrap">Precio <strong data-toggle="tooltip" title="Precio de venta establecido en la marca y coleccion">(PVE)</strong></th>
-                                        <th class="bg-primary">Total (S/)</th>
                                         <th class="bg-primary">Estado</th>
-                                        <th class="bg-primary">---</th>
                                     </tr>
                                 </thead>
                                 <tbody id="data_modelos"></tbody>

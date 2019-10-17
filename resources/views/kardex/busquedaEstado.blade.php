@@ -124,7 +124,7 @@
     // mostrar y validar campos en consignacion y guia
     $(".bc").click(function(e){
         $("#icon-loading").show();
-        $.get('../detalleConsig/'+$(this).data("id"), function(data) {
+        $.get('../detalleConsig/'+$(this).data("id"), {view: 1}, function(data) {
             
             $('.data-table').DataTable().destroy();
             cargarDataConsignacionYModelos(data);

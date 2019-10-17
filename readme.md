@@ -1,5 +1,5 @@
 # SisGenesis
 
-Sistema distribuidora Genesis
+Control, Gestion e Inventario para distribuidoragenesis.net 
 
 

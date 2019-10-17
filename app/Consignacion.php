@@ -42,11 +42,26 @@ class Consignacion extends Model
       return DetalleConsignacion::where("consignacion_id", $id)->where("status", 3)->count();
     }
 
+    // scopes querys
     public function scopeFechaenvio($query, $fecha)
     {   
         if ($fecha != "null") {
             $f = date('d/m/Y',strtotime(str_replace('/', '-', $fecha)));
             return $query->where('fecha_envio', $f);
+        }
+    }
+
+    public function scopeNotap($query, $nota)
+    {   
+        if ($nota != "null") {
+            return $query->where('notapedido_id', $nota);
+        }
+    }
+
+    public function scopeGuiar($query, $guia)
+    {   
+        if ($guia != "null") {
+            return $query->where('guia_id', $guia);
         }
     }
 
@@ -174,13 +189,64 @@ class Consignacion extends Model
     }
 
      // cargar datos de la consig
-    public static function showConsig($id){
+    public static function showConsig($id, $request){
         
-        $consig         = Consignacion::with("cliente", "guia.detalleGuia.item", "guia.motivo_guia", "guia.cliente")->findOrFail($id);
-        $data           = $data_det_guia  = $names = array();
-        $dir_llegada    = ($consig->guia) ? $consig->guia->dirLLegada->full_dir() : 'vacio';
-        $dir_salida     = ($consig->guia) ? $consig->guia->dirSalida->full_dir()  : 'vacio';
+        $data_det_guia = $names = $data = "";
 
+        $consig = Consignacion::with("cliente", "guia.detalleGuia.item", "guia.motivo_guia", "guia.cliente")->findOrFail($id);
+
+        if (!$request->view) {
+            $data = Consignacion::cargarDataConsigJson($consig);
+        }else{
+            $data = Consignacion::cargarDataConsigJsonView($consig);
+        }
+
+        $names = Consignacion::cargarNameModelosJson($consig);
+        
+        if ($consig->guia) {
+            $data_det_guia = Consignacion::cargarGuiaJson($consig);
+        }
+
+        return response()->json([
+            "data"          => $data,
+            "names"         => $names,
+            "consig"        => $consig,
+            "data_det_guia" => $data_det_guia,
+            "dir_llegada"   => ($consig->guia) ? $consig->guia->dirLLegada->full_dir() : 'vacio',
+            "dir_salida"    => ($consig->guia) ? $consig->guia->dirSalida->full_dir()  : 'vacio',
+        ]);
+    }
+
+    // cargar la guia mediante html
+    public static function cargarGuiaJson($consig){
+        $data = array();
+        foreach ($consig->guia->detalleGuia as $dg) {
+            $data [] = "
+                <tr>
+                    <td>".$dg->item->nombre."</td>
+                    <td>".$dg->cantidad."</td>
+                    <td>".$dg->peso."</td>
+                    <td>".$dg->descripcion."</td>
+                </tr>"; 
+        }
+        return $data;
+    }
+
+    // cargar los nombres de modelos para ser buscados
+    public static function cargarNameModelosJson($consig){
+        $names = array();
+        foreach ($consig->detalleConsignacion->unique("modelo.name") as $val) {
+            $names [] = "<button type='button' class='btn-link btn_nm' value='".$val->modelo->name."'>
+                            ".$val->modelo->name."
+                        </button>"; 
+        }
+
+        return $names;
+    }
+
+    // cargar datos completos de la consignacion html
+    public static function cargarDataConsigJson($consig){
+        $data = array();
         foreach ($consig->detalleConsignacion as $dc) {
             $data [] = "<tr>
                             <td>".$dc->modelo_id."<input type='hidden' value='".$dc->modelo_id."' id='modelo_id_".$dc->modelo_id."' name='modelo_id[]'></td>
@@ -204,32 +270,26 @@ class Consignacion extends Model
                         </tr>"; 
         }
 
-        if ($consig->guia) {
-            foreach ($consig->guia->detalleGuia as $dg) {
-                $data_det_guia [] = "
-                    <tr>
-                        <td>".$dg->item->nombre."</td>
-                        <td>".$dg->cantidad."</td>
-                        <td>".$dg->peso."</td>
-                        <td>".$dg->descripcion."</td>
-                    </tr>"; 
-            }
+        return $data;
+    }
+
+    // cargar datos completos de la consignacion html (solo vista)
+    public static function cargarDataConsigJsonView($consig){
+        $data = array();
+        foreach ($consig->detalleConsignacion as $dc) {
+            $data [] = "<tr>
+                            <td>".$dc->modelo_id."</td>
+                            <td>".$dc->modelo->name."</td>
+                            <td>".$dc->montura."</td>
+                            <td>".$dc->estuche."</td>
+                            <td>
+                                ".ColeccionMarca::cargarPrecios($dc->modelo->coleccion_id, $dc->modelo->marca_id)->precio_venta_establecido."
+                            </td>
+                            <td>".Consignacion::validarStatusDeModeloEnConsignacion($dc)."</td>
+                        </tr>"; 
         }
 
-        foreach ($consig->detalleConsignacion->unique("modelo.name") as $val) {
-            $names [] = "<button type='button' class='btn-link btn_nm' value='".$val->modelo->name."'>
-                            ".$val->modelo->name."
-                        </button>"; 
-        }
-
-        return response()->json([
-            "consig"        => $consig,
-            "data"          => $data,
-            "data_det_guia" => $data_det_guia,
-            "dir_llegada"   => $dir_llegada,
-            "dir_salida"    => $dir_salida,
-            "names"         => $names,
-        ]);
+        return $data;
     }
 
     // validar status de los modelos en la consignacion
@@ -245,10 +305,14 @@ class Consignacion extends Model
         return $status;
     }
 
-    public static function cargarConsigSelect($cliente, $fecha){
+    // cargar cosnignacion en un select filtrado
+    public static function cargarConsigSelect($cliente, $fecha, $nota, $guia){
 
         $consig = Consignacion::where("cliente_id", $cliente)
+                                ->where("status", 1)
                                 ->fechaenvio($fecha)
+                                ->notap($nota)
+                                ->guiar($guia)
                                 ->get();
         $data = array();
 
