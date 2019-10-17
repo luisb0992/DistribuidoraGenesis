@@ -49,6 +49,7 @@
                         <table class="table table-bordered table-hover table-striped">
                             <thead class="bg-navy disabled">
                                 <tr>
+                                    <th>Codigo</th>
                                     <th>Modelo</th>
                                     <th>Monturas</th>
                                     <th>Estuches</th>
@@ -59,6 +60,7 @@
                             <tbody>
                                 @foreach($venta->movimientoVenta as $mov)
                                 <tr>
+                                    <td>{{ $mov->modelo->id }}</td>
                                     <td>{{ $mov->modelo->name }}</td>
                                     <td>{{ $mov->monturas}}</td>
                                     <td>{{ $mov->estuches }}</td>

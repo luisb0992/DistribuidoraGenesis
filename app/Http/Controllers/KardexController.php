@@ -15,7 +15,7 @@ class KardexController extends Controller
             "consignaciones"    => DetalleConsignacion::orderBy("id", "DESC")->get(),
             "ventas"            => MovimientoVenta::orderBy("id", "DESC")->get(),
             "devoluciones"      => MovDevolucion::orderBy("id", "DESC")->get(),
-            "modelos"           => Modelo::orderBy("id", "DESC")->where("status_id", 1)->take(100)->get(),
+            "modelos"           => Modelo::orderBy("id", "DESC")->take(100)->get(),
         ]);
     }
 

@@ -26,8 +26,7 @@
         <div class="col-lg-12">
             <div class="box box-danger box-solid">
                 <div class="box-header with-border">
-                    <h3 class="box-title"><i class="fa fa-list-alt"></i> Ventas</h3>
-                    <span class="pull-right">
+                    <span class="pull-left">
                         <div class="btn-group">
                           <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
                             Nueva venta <span class="caret"></span>
@@ -38,6 +37,11 @@
                             <li><a href="{{ route('create_venta_consignacion') }}">Venta Productos Consignados</a></li>
                           </ul>
                         </div>
+                    </span>
+                    <span>
+                        <button type="button" data-toggle="modal" data-target="#busqueda_avanzada_venta" class="btn bg-navy">
+                            <i class="fa fa-search"></i> Busqueda avanzada
+                        </button>
                     </span>
                 </div>
                 <div class="box-body">
@@ -139,6 +143,15 @@
     @include('ventas.modals.update_estado_factura') 
     @include('ventas.modals.update_estado_estuche') 
     @include('ventas.modals.add_pago') 
+    @include("partials.modals.busqueda_avanzada",[
+        "color_header"  => "bg-navy",
+        "icon"          => "search",
+        "titulo"        => "Busqueda avanzada",
+        "modal_type"    => "modal-lg",
+        "id_modal"      => "busqueda_avanzada_venta",
+        "body"          => "ventas.partials.body_busqueda_avanzada",
+        "footer"        => "",
+    ])
 @endsection
 
 @section("script")
@@ -273,6 +286,39 @@
             console.log("complete");
         });
         
+    });
+
+    // cargar modelos en la tabla
+    $("#btn_cargar_modelos").click(function(e) {
+        var cliente = $("#cliente_bus").val();
+        var fecha = $("#fecha_venta").val();
+
+        if (fecha) {
+            var userDate = fecha;
+            var from = userDate.split("/");
+            var f = new Date(from[2], from[1], from[0]);
+            var fec = f.getFullYear() + "-" + f.getMonth() + "-" + f.getDate();
+        }else{
+            var fec = null;
+        }
+
+        if (cliente) {
+            $("#data_modelos").empty();
+
+            $.get("buscarVentas/"+cliente+"/"+fec+"",function(response, status){
+
+                    $('.data-table .table-model').DataTable().destroy();
+                    $("#data_modelos").html(response.data);
+                    $('.data-table .table-model').DataTable({
+                        responsive: true,
+                        language: {
+                            url:'{{asset("plugins/datatables/spanish.json")}}'
+                        }
+                    });
+            });
+        }else{
+            mensajes("Alerta!", "Nada para mostrar", "fa-warning", "red");
+        }
     });
 </script>
 @endsection

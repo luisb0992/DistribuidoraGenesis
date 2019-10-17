@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\{
     Venta, Consignacion, Direccion, Departamento, RefItem, 
     StatusAdicionalVenta, Coleccion, Cliente, User, Factura, 
-    TipoAbono, Pago, Letra, StatusLetra, ProtestoLetra, AdicionalVenta
+    TipoAbono, Pago, Letra, StatusLetra, ProtestoLetra, AdicionalVenta,
+    NotaPedido
 };
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateVentaRequest;
@@ -23,13 +24,14 @@ class VentaController extends Controller
             "tipo_abono"     => TipoAbono::all(),
             "status_letra"   => StatusLetra::all(),
             "protesto_letra" => ProtestoLetra::all(),
+            "clientes"       => Cliente::all(),
         ]);
     }
 
     public function createConsignacion()
     {
         return view("ventas.create_venta_consignacion",[
-            "consignaciones" => Consignacion::where("status", 1)->get(["id", "created_at"]),
+            "consignaciones" => Consignacion::where("status", 1)->get(["id", "created_at", "notapedido_id", "guia_id"]),
             "direcciones"    => Direccion::all(),
             "departamentos"  => Departamento::all(),
             "items"          => RefItem::all(),
@@ -37,6 +39,7 @@ class VentaController extends Controller
             "tipo_abono"     => TipoAbono::all(),
             "status_letra"   => StatusLetra::all(),
             "protesto_letra" => ProtestoLetra::all(),
+            "clientes"       => Cliente::all()
         ]);
     }
 
@@ -123,6 +126,12 @@ class VentaController extends Controller
     {
         $venta = Venta::with("cliente")->findOrFail($id);
         return response()->json($venta);
+    }
+
+    // busqueda avanzada de ventas
+    public function buscarVentas($cliente, $fecha)
+    {
+        return Venta::buscarVentas($cliente, $fecha);
     }
 
     public function showVentaJson($id)

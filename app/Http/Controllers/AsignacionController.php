@@ -21,7 +21,9 @@ class AsignacionController extends Controller
     public function index()
     {
         return view("asignaciones.index",[
-            "asignaciones" => Asignacion::all()
+            "asignaciones"  => Asignacion::all(),
+            "colecciones"   => Coleccion::all(),
+            "users"         => User::where("status", "activo")->get()
         ]);
     }
 
@@ -52,6 +54,11 @@ class AsignacionController extends Controller
     public function modelosAll($coleccion, $marca)
     {
         return Asignacion::modelosAll($coleccion, $marca);
+    }
+
+    public function buscarModelosAsignados($user, $fecha)
+    {
+        return Asignacion::buscarModelosAsignados($user, $fecha);
     }
 
     public function show($id)

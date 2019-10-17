@@ -133,4 +133,10 @@ class ConsignacionController extends Controller
             "protesto_letra" => ProtestoLetra::all(),
         ]);
     }
+
+    // cargar consignacion en select
+    public function cargarConsigSelect($cliente, $fecha)
+    {
+        return Consignacion::cargarConsigSelect($cliente, $fecha);
+    }
 }

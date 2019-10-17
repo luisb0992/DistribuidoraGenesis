@@ -164,6 +164,13 @@
         $("#total_neto").val('');
     });
 
+    // copiar y pegar modelo en buscador de la tabla y aplicar la busqueda
+    $(".div_tablas_modelos").on("click", ".btn_nm", function(e) {
+        e.preventDefault();
+        $("table.data-table.search_consig input[type='search']").empty().val($(this).val());
+        $('table.data-table.search_consig').DataTable().search($(this).val()).draw();    
+    });
+
 
     //-------------------------------------------- funciones ---------------------------------------------------------
     

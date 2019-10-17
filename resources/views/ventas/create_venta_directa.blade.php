@@ -111,7 +111,7 @@
             }else{
                 mensajes("Alerta!", "No posee marcas asociadas", "fa-warning", "red");
             }
-            $("#data_modelos_venta_directa").empty();
+            $("#data_modelos_venta_directa, #names_mod").empty();
             $("#icon-load-marcas").hide();
         });
     });
@@ -124,7 +124,7 @@
     // evitar el siguiente si se cambia cualquier valor en la carga de modelos
     $('#section_cargar_modelos').on("change", "#select_marca, #select_coleccion", function(e) {
         $("#btn_guardar_all").attr("disabled", "disabled");
-        $("#data_modelos_venta_directa").empty();
+        $("#data_modelos_venta_directa, #names_mod").empty();
         $("#span_select_estuche, #span_info_estuche").hide(400);
         $("#status_estuche").removeAttr('required').prop('name', '');
         reiniciarMontoTotal();
@@ -143,11 +143,14 @@
     function cargarModelos(){
         $("#btn_cargar_modelos").attr('disabled', 'disabled');
         $("#icon-cargar-modelos").show();
+        $("#names_mod, #data_modelos_venta_directa").empty();
         if ($("#select_coleccion").val() && $("#select_marca").val()) {
             $.get("cargarTabla/"+$("#select_coleccion").val()+"/"+$("#select_marca").val()+"",function(response, dep){
                 $('.data-table').DataTable().destroy();
-                $("#data_modelos_venta_directa").empty().html(response);
+                $("#data_modelos_venta_directa").html(response.data);
+                $("#names_mod").html(response.names);
                 $('.data-table').DataTable({responsive: true});
+                console.log(response.names);
 
                 $("#btn_cargar_modelos").removeAttr("disabled");
                 $("#icon-cargar-modelos").hide();

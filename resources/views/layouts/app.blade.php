@@ -392,6 +392,7 @@
             $("#fecha_envio").text(data.consig.fecha_envio);
             $("#data_modelos").empty().append(data.data);
             $(".cliente_id").val(data.consig.cliente_id);
+            $("#names_mod").html(data.names);
         }
 
         // cargar data de la guia

@@ -1,4 +1,9 @@
 <div class="col-lg-12 div_tablas_modelos">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td><span id="names_mod"></span></td>
+        </tr>
+    </table>
     <table class="table data-table table-bordered table-striped table-hover ok" width="100%">
         <thead class="bg-primary">
             <tr>
@@ -6,9 +11,15 @@
                 <th>Nombre</th>
                 <th>Monturas</th>
                 <th>Estuches</th>
-                <th class="text-nowrap">Precio <strong data-toggle="tooltip" title="Precio de venta establecido en la marca y coleccion">(PVE)</strong></th>
-                <th class="bg-navy"><strong data-toggle="tooltip" title="Total a cancela por modelo">Total (S/)</strong></th>
-                <th><input type="checkbox" name="check_all_model" value="0" id="check_all_model" onclick="checkAllModelos()"></th>
+                <th class="text-nowrap">
+                    Precio <strong data-toggle="tooltip" title="Precio de venta establecido en la marca y coleccion">(PVE)</strong>
+                </th>
+                <th class="bg-navy">
+                    <strong data-toggle="tooltip" title="Total a cancela por modelo">Total (S/)</strong>
+                </th>
+                <th>
+                    <input type="checkbox" name="check_all_model" value="0" id="check_all_model" onclick="checkAllModelos()">
+                </th>
             </tr>
         </thead>
         <tbody id="data_modelos_venta_directa"></tbody>

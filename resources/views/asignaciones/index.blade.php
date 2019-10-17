@@ -28,7 +28,11 @@
   		<div class="col-md-12">
     		<div class="box box-danger box-solid">
 	      		<div class="box-header with-border">
-			        <h3 class="box-title"><i class="fa fa-list-alt"></i> Asignacion de modelos</h3>
+			        <span>
+			        	<button type="button" data-toggle="modal" data-target="#busqueda_avanzada_asig" class="btn bg-navy">
+			        		<i class="fa fa-search"></i> Busqueda avanzada
+			        	</button>
+			        </span>
 			        <span class="pull-right">
 						<a href="{{ route('asignaciones.create') }}" class="btn btn-danger">
 							<i class="fa fa-plus" aria-hidden="true"></i> Nueva asignacion
@@ -78,4 +82,50 @@
 			</div>
 		</div>
 	</div>
+
+	@include("asignaciones.modals.busqueda_avanzada_asig",[
+		"color_header" => "bg-navy",
+		"icon" => "search",
+		"titulo" => "Busqueda avanzada",
+		"modal_type" => "modal-lg"
+	])
+@endsection
+
+@section("script")
+<script>
+
+	// cargar modelos en la tabla
+	$("#btn_cargar_modelos").click(function(e) {
+		var user = $("#user").val();
+		var fecha = $("#fecha_asig").val();
+
+		if (fecha) {
+			var userDate = fecha;
+		    var from = userDate.split("/");
+		    var f = new Date(from[2], from[1], from[0]);
+		    var fec = f.getFullYear() + "-" + f.getMonth() + "-" + f.getDate();
+		}else{
+			var fec = null;
+		}
+
+		if (user) {
+			$("#data_modelos").empty();
+
+			$.get("buscarModelosAsignados/"+user+"/"+fec+"",function(response, status){
+
+					$('.data-table .table-model').DataTable().destroy();
+				    $("#data_modelos").html(response.data);
+				    $('.data-table .table-model').DataTable({
+				    	responsive: true,
+					    language: {
+					      	url:'{{asset("plugins/datatables/spanish.json")}}'
+					    }
+				    });
+			});
+		}else{
+			mensajes("Alerta!", "Nada para mostrar", "fa-warning", "red");
+		}
+	});
+
+</script>
 @endsection

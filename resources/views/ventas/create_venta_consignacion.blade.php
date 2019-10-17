@@ -57,8 +57,42 @@
         }
     });
 
-    // buscar y cargar consignacion
+    // buscar consignacion y cargar en el select
     $("#btn_buscar_consignacion").click(function(e){
+        reiniciarMontoTotal();
+        $(".btn_siguiente").attr("disabled", "disabled");
+        var cliente = $("#cliente_bus").val();
+        var fecha = $("#fecha_envio").val();
+
+        if (fecha) {
+            var from = fecha.split("/");
+            var f = new Date(from[2], from[1], from[0]);
+            var fec = f.getFullYear() + "-" + f.getMonth() + "-" + f.getDate();
+        }else{
+            var fec = null;
+        }
+
+        if (cliente == null) {
+
+            mensajes("Alerta!", "Nada para mostrar", "fa-remove", "red");
+
+        }else{
+
+            $("#icon-buscar-consig").show();
+            $("#btn_buscar_consignacion").attr("disabled", "disabled");
+
+            $.get('cargarConsigSelect/'+cliente+'/'+fec+'', function(data) {
+
+                $("#id_consignacion").empty().html(data);
+                $("#icon-buscar-consig").hide();
+                $("#btn_buscar_consignacion").removeAttr('disabled');
+                mensajes("Listo!", data.length+" resultados", "fa-remove", "green");
+            }); 
+        }
+    });
+
+    // cargar consignacion en la tabla
+    $("#btn_cargar_consignacion").click(function(e){
         reiniciarMontoTotal();
         $(".btn_siguiente").attr("disabled", "disabled");
         valor = $("#id_consignacion").val();
@@ -66,8 +100,8 @@
         if (valor == null) {
             mensajes("Alerta!", "El campo de seleccion esta vacio, seleccione un codigo", "fa-remove", "red");
         }else{
-            $("#icon-buscar-consig").show();
-            $("#btn_buscar_consignacion").attr("disabled", "disabled");
+            $("#icon-cargar-consig").show();
+            $("#btn_cargar_consignacion").attr("disabled", "disabled");
             $.get('detalleConsig/'+valor+'', function(data) {
                 $("#section_detalle_consig").fadeIn(400);
 
@@ -97,8 +131,8 @@
                     cargarGuia(data);
                 }
                 
-                $("#icon-buscar-consig").hide();
-                $("#btn_buscar_consignacion").removeAttr('disabled');
+                $("#icon-cargar-consig").hide();
+                $("#btn_cargar_consignacion").removeAttr('disabled');
             }); 
         }
     });
@@ -108,11 +142,17 @@
         $(".btn_siguiente").attr("disabled", "disabled");
     });
 
+    // evitar el siguiente si se cambia cualquier valor en la busqueda principal
+    $('#cliente_bus, #fecha_envio').on("change",  function(e) {
+        $(".btn_siguiente").attr("disabled", "disabled");
+        $("#id_consignacion").empty();
+    });
+
     // copiar y pegar modelo en buscador de la tabla y aplicar la busqueda
     $(".div_tablas_modelos").on("click", ".btn_nm", function(e) {
         e.preventDefault();
-        $("table.data-table.ok input[type='search']").empty().val($(this).val());
-        $('table.data-table.ok').DataTable().search($(this).val()).draw();    
+        $("table.data-table.search_consig input[type='search']").empty().val($(this).val());
+        $('table.data-table.search_consig').DataTable().search($(this).val()).draw();    
     });
 
 

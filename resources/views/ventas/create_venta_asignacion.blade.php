@@ -47,7 +47,7 @@
     // evitar el siguiente si se cambia cualquier valor en los modelos - venta directa
     $('#section_vendedor').on("change", "#user_id", function(e) {
         $("#btn_guardar_all").attr("disabled", "disabled");
-        $("#data_modelos_venta_directa").empty();
+        $("#data_modelos_venta_directa, #names_mod").empty();
         $("#span_select_estuche, #span_info_estuche").hide(400);
         $("#status_estuche").removeAttr('required').prop('name', '');
         reiniciarMontoTotal();
@@ -60,7 +60,8 @@
         
         $.getJSON('cargarAsigModelosToUser/'+$("#user_id").val()+'', function(json, textStatus) {    
             $('.data-table').DataTable().destroy();
-            $("#data_modelos_venta_directa").empty().html(json);
+            $("#data_modelos_venta_directa").empty().html(json.data);
+            $("#names_mod").empty().html(json.names);
             $('.data-table').DataTable({responsive: true});
             $("#btn_cargar_modelos").removeAttr("disabled");
             $("#icon-cargar-modelos").hide();

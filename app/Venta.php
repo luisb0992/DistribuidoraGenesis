@@ -75,6 +75,14 @@ class Venta extends Model
         return $this->pagos()->orderBy("id", "DESC")->value("fecha_cancelacion");
     }
 
+    public function scopeFventa($query, $fecha)
+    {   
+        if ($fecha != "null") {
+            $f = date('d-m-Y',strtotime(str_replace('/', '-', $fecha)));
+            return $query->where('fecha', $f);
+        }
+    }
+
     // public static function ventasAdeudadas(){
     //     $venta = Venta::whereIn("id", Pago::all(["venta_id"]))->get();
     //     dd($venta->pagos());
@@ -324,6 +332,86 @@ class Venta extends Model
             "status_estuche"    => $venta->estatusEstuche(),
             "total"             => array_sum($venta->movimientoVenta->pluck("precio_modelo")->toArray()),
         ]);
+    }
+
+     // busqueda avanzada de ventas
+    public static function buscarVentas($cliente, $fecha){
+        
+        $ventas  = Venta::where("cliente_id", $cliente)
+                        ->fventa($fecha)->get();
+        $data   = array();
+
+        foreach ($ventas as $v) 
+        {
+            $data [] = "
+                <tr>
+                    <td>".$v->id."</td>
+                    <td>".$v->cliente->nombre_full."</td>
+                    <td>S/ ".$v->total."</td>
+                    <td>".$v->fecha."</td>
+                    <td>".$v->estadoFacturaHtml()."</td>
+                    <td>".$v->estadoEstucheHtml()."</td>
+                    <td>".$v->estadoPagoHtml()."</td>
+                    <td>
+                        <a href=".route('ventas.show', $v->id)." class='btn bg-navy btn-xs' data-toggle='tooltip' title='Detalles de la venta'>
+                            <i class='fa fa-eye'></i> 
+                        </a>
+                    </td>
+                </tr>"; 
+        }               
+        
+        return response()->json([
+            "data" => $data,
+        ]);
+    }
+
+    // pintar estado factura
+    public function estadoFacturaHtml(){
+        $data = "";
+
+        if ($this->adicionalVenta) {
+            if ($this->adicionalVenta->ref_estadic_id == 3) {
+                $data = "<span>Entregada</span>";
+            }else{
+                $data = "<span>".$this->adicionalVenta->statusAdicional->nombre."</span>";
+            }
+        }else{
+            $data = "<span>Factura no generada</span>";
+        }
+
+        return $data;
+    }
+
+    // pintar estado estuche
+    public function estadoEstucheHtml(){
+
+        $data = "";
+
+        if ($this->estado_entrega_estuche == "1") {
+            $data = "<span class='text-success'>".$this->estatusEstuche()."<i class='fa fa-check'></i></span>";
+        }elseif ($this->estado_entrega_estuche == "0") {
+            $data = "<span class='text-info'>".$this->estatusEstuche()."<i class='fa fa-info-circle'></i></span>";
+        }else{
+            $data = "<span class='text-danger'>".$this->estatusEstuche()."<i class='fa fa-remove'></i></span>";
+        }
+
+        return $data;
+    }
+
+    // pintar pagos
+    public function estadoPagoHtml(){
+
+        $data = "";
+
+        if ($this->totaldeuda() == "0") {
+            $data = "<span>Deuda cancelada <i class='fa fa-check text-success'></i></span>";
+        }elseif ($this->totaldeuda() == "") {
+            $data = "<span>Ningun pago registrado <i class='fa fa-info-circle text-info'></i></span>";
+        }else{
+            $data = "<span>Deuda por cancelar <i class='fa fa-warning text-warning'></i></span>";
+        }
+
+        return $data;
     }
 
     // cargar factura relacionada con la venta (en desarrollo...)

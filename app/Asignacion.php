@@ -31,6 +31,14 @@ class Asignacion extends Model
         return $this->updated_at->format("d-m-Y");
     }
 
+    public function scopeFasig($query, $fecha)
+    {   
+        if ($fecha != "null") {
+            $f = date('d-m-Y',strtotime(str_replace('/', '-', $fecha)));
+            return $query->where('fecha', $f);
+        }
+    }
+
     public function status(){
         if ($this->status == 1) {
             $this->status = "Asignado";
@@ -141,6 +149,46 @@ class Asignacion extends Model
         ]);
     }
 
+    // pintar la tabla y validar sus opciones
+    public static function buscarModelosAsignados($user, $fecha){
+        $modelos = Asignacion::where("user_id", $user)
+                            ->fasig($fecha)
+                            ->get();
+
+        $data = array();
+        foreach ($modelos as $mod) {
+
+            $data [] = 
+                "<tr>
+                    <td>
+                        ".$mod->user->name." ".$mod->user->ape."
+                    </td>
+                    <td>
+                        ".$mod->modelo->name." - [".$mod->modelo->id."]
+                    </td>
+                    <td>
+                        ".$mod->monturas."
+                    </td>
+                    <td>
+                        ".$mod->estuches."
+                    </td>
+                    <td>
+                        ".$mod->fecha."
+                    </td>
+                    <td>
+                        ".$mod->status()."
+                    </td>
+                    <td>
+                        ".Asignacion::statusOnDelete($mod->status, $mod->id)."
+                    </td>
+                </tr>"; 
+        }
+
+               
+
+        return response()->json(["data"  => $data]);
+    }
+
     // recorrer las monturas disponibles para asignar
     public static function Monturas($montura){
 
@@ -154,6 +202,24 @@ class Asignacion extends Model
     	}
 
     	return join(",",$mon);
+    }
+
+    // validar el boton de eliminar o no
+    public static function statusOnDelete($status, $id){
+
+        $form = "";
+
+        if ($status == "Asignado") {
+            $form = "
+                <form action='asignaciones/".$id."' method='POST'>
+                    ".method_field('DELETE')."
+                    ".csrf_field()."
+                    <button class='btn btn-xs btn-danger confirmar' type='submit' onclick='return confirm('Desea eliminar la asignacion con todas sus dependencias S/N?');'><i class='fa fa-trash'></i>
+                    </button>
+                </form>";
+        }
+
+        return $form;
     }
 
     // guardar asignacion de modelos y usuarios
@@ -224,7 +290,8 @@ class Asignacion extends Model
         $model  = Asignacion::where("user_id", $user)
                              ->where("status", 1)
                              ->get();
-        $data   = array();
+        
+        $data   = $names = array();
 
         foreach ($model as $m) {
 
@@ -260,8 +327,17 @@ class Asignacion extends Model
                     </td>
                 </tr>"; 
         }
+        // dd($model->unique("modelos.name"));
+        foreach ($model->unique("modelo.name") as $val) {
+            $names [] = "<button type='button' class='btn-link btn_nm' value='".$val->modelo->name."'>
+                            ".$val->modelo->name."
+                        </button>"; 
+        }
         
-        return response()->json($data);
+        return response()->json([
+            "data" => $data,
+            "names" => $names,
+        ]);
     }
 
     public static function modeloRetornadoOrAsignados($request){

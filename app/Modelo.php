@@ -282,6 +282,7 @@ class Modelo extends Model
     public static function cargarTabla($coleccion, $marca){
         
         $data   = array();
+        $names = array();
         $mod    = Modelo::where("coleccion_id", $coleccion)
                         ->where("marca_id", $marca)
                         ->where("status_id",  1)
@@ -289,6 +290,7 @@ class Modelo extends Model
 
         foreach ($mod as $m) {
 
+            
             $data [] = "
                 <tr>
                     <td>
@@ -320,9 +322,17 @@ class Modelo extends Model
                     </td>
                 </tr>"; 
         }
-                 
 
-        return response()->json($data);
+        foreach ($mod->unique("name") as $val) {
+            $names [] = "<button type='button' class='btn-link btn_nm' value='".$val->name."'>
+                            ".$val->name."
+                        </button>"; 
+        }
+
+        return response()->json([
+            "data" => $data,
+            "names" => $names,
+        ]);
     }
 
     // buscar modelo 

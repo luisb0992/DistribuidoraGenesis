@@ -42,6 +42,14 @@ class Consignacion extends Model
       return DetalleConsignacion::where("consignacion_id", $id)->where("status", 3)->count();
     }
 
+    public function scopeFechaenvio($query, $fecha)
+    {   
+        if ($fecha != "null") {
+            $f = date('d/m/Y',strtotime(str_replace('/', '-', $fecha)));
+            return $query->where('fecha_envio', $f);
+        }
+    }
+
     // guardar consignacion
     public static function saveConsignacionAndDetalle($request, $guia, $nota){
 
@@ -169,8 +177,7 @@ class Consignacion extends Model
     public static function showConsig($id){
         
         $consig         = Consignacion::with("cliente", "guia.detalleGuia.item", "guia.motivo_guia", "guia.cliente")->findOrFail($id);
-        $data           = array();
-        $data_det_guia  = array();
+        $data           = $data_det_guia  = $names = array();
         $dir_llegada    = ($consig->guia) ? $consig->guia->dirLLegada->full_dir() : 'vacio';
         $dir_salida     = ($consig->guia) ? $consig->guia->dirSalida->full_dir()  : 'vacio';
 
@@ -199,13 +206,20 @@ class Consignacion extends Model
 
         if ($consig->guia) {
             foreach ($consig->guia->detalleGuia as $dg) {
-                $data_det_guia [] = "<tr>
-                                        <td>".$dg->item->nombre."</td>
-                                        <td>".$dg->cantidad."</td>
-                                        <td>".$dg->peso."</td>
-                                        <td>".$dg->descripcion."</td>
-                                    </tr>"; 
+                $data_det_guia [] = "
+                    <tr>
+                        <td>".$dg->item->nombre."</td>
+                        <td>".$dg->cantidad."</td>
+                        <td>".$dg->peso."</td>
+                        <td>".$dg->descripcion."</td>
+                    </tr>"; 
             }
+        }
+
+        foreach ($consig->detalleConsignacion->unique("modelo.name") as $val) {
+            $names [] = "<button type='button' class='btn-link btn_nm' value='".$val->modelo->name."'>
+                            ".$val->modelo->name."
+                        </button>"; 
         }
 
         return response()->json([
@@ -214,6 +228,7 @@ class Consignacion extends Model
             "data_det_guia" => $data_det_guia,
             "dir_llegada"   => $dir_llegada,
             "dir_salida"    => $dir_salida,
+            "names"         => $names,
         ]);
     }
 
@@ -228,6 +243,23 @@ class Consignacion extends Model
         }
 
         return $status;
+    }
+
+    public static function cargarConsigSelect($cliente, $fecha){
+
+        $consig = Consignacion::where("cliente_id", $cliente)
+                                ->fechaenvio($fecha)
+                                ->get();
+        $data = array();
+
+        for ($i = 0; $i < count($consig); $i++) { 
+            
+            $data [] = "<option value=".$consig[$i]->id.">[".$consig[$i]->id."] - ".$consig[$i]->fecha_envio."</option>";
+        
+        }
+
+        return response()->json($data);
+
     }
 
 }

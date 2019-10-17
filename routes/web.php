@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth', 'web']], function() { //middleware auth
     Route::get('detalleConsig/{id}', 'ConsignacionController@show');
     Route::get('procesarVentaConsig/{id}', 'ConsignacionController@procesarVentaConsig')->name('procesarVentaConsig');
     Route::put('añadirModelos/{id}', 'ConsignacionController@añadirModelos')->name('añadirModelos');
+    Route::get('cargarConsigSelect/{cliente}/{fec}', 'ConsignacionController@cargarConsigSelect')->name('cargarConsigSelect');
 
     // Guia de remision
     Route::get('cargarGuia/{id}', 'GuiaRemisionController@edit');
@@ -96,6 +97,7 @@ Route::group(['middleware' => ['auth', 'web']], function() { //middleware auth
 	Route::get('marcasAll/{id}', 					'AsignacionController@marcasAll');
 	Route::get('editAsigRuta/{id}', 				'AsignacionController@editAsigRuta');
 	Route::get('modelosAll/{coleccion}/{marca}', 	'AsignacionController@modelosAll');
+	Route::get('buscarModelosAsignados/{user}/{fecha}', 	'AsignacionController@buscarModelosAsignados')->name("buscarModelosAsignados");
 	Route::get('asignacionesRutas', 				'AsignacionController@rutasIndex')->name("indexrutas");
 	Route::get('asigRutaCreate', 					'AsignacionController@asigRutaCreate')->name("asigRutaCreate");
     Route::get('cargarAsigModelosToUser/{user}',    'AsignacionController@cargarAsigModelosToUser')->name("cargarAsigModelosToUser");
@@ -141,8 +143,8 @@ Route::group(['middleware' => ['auth', 'web']], function() { //middleware auth
     Route::post('generarFactura',           'VentaController@generarFactura')->name('ventas.generarFactura');
     Route::post('updateEstadoFactura',      'VentaController@updateEstadoFactura')->name('ventas.updateEstadoFactura');
     Route::post('updateEstadoEstuche',      'VentaController@updateEstadoEstuche')->name('ventas.updateEstadoEstuche');
-
     Route::get('cargarVenta/{id}', 'VentaController@cargarVenta')->name('cargarVenta');
+    Route::get('buscarVentas/{cliente}/{fecha}', 'VentaController@buscarVentas')->name('buscarVentas');
 
   	// foto del usuario
   	Route::get('images/{filename}',function($filename){
