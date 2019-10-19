@@ -188,7 +188,7 @@ class Consignacion extends Model
         $consig->save();
     }
 
-     // cargar datos de la consig
+     // cargar datos de la consig - json
     public static function showConsig($id, $request){
         
         $data_det_guia = $names = $data = "";
@@ -214,6 +214,29 @@ class Consignacion extends Model
             "data_det_guia" => $data_det_guia,
             "dir_llegada"   => ($consig->guia) ? $consig->guia->dirLLegada->full_dir() : 'vacio',
             "dir_salida"    => ($consig->guia) ? $consig->guia->dirSalida->full_dir()  : 'vacio',
+        ]);
+    }
+
+     // cargar datos de la consig - pintar html
+    public static function detalleConsigGuiaNotaHtml($id){
+        
+        $data_det_guia = $modelos = "";
+
+        $consig = Consignacion::with("cliente", "guia.detalleGuia.item", "guia.motivo_guia", "guia.cliente", "notapedido.direccion")->findOrFail($id);
+
+        $modelos = Consignacion::cargarDataConsigJsonView($consig);
+        
+        if ($consig->guia) {
+            $data_det_guia = Consignacion::cargarGuiaJson($consig);
+        }
+
+        return response()->json([
+            "consig"        => $consig,
+            "modelos"       => $modelos,
+            "data_det_guia" => $data_det_guia,
+            "dir_llegada"   => ($consig->guia) ? $consig->guia->dirLLegada->full_dir() : 'vacio',
+            "dir_salida"    => ($consig->guia) ? $consig->guia->dirSalida->full_dir()  : 'vacio',
+            "dir_nota"      => ($consig->notapedido) ? $consig->notapedido->direccion->full_dir()  : 'vacio',
         ]);
     }
 
@@ -306,14 +329,25 @@ class Consignacion extends Model
     }
 
     // cargar cosnignacion en un select filtrado
-    public static function cargarConsigSelect($cliente, $fecha, $nota, $guia){
+    public static function cargarConsigSelect($request, $cliente, $fecha, $nota, $guia){
 
-        $consig = Consignacion::where("cliente_id", $cliente)
-                                ->where("status", 1)
-                                ->fechaenvio($fecha)
-                                ->notap($nota)
-                                ->guiar($guia)
-                                ->get();
+        if ($request->view) {
+
+            $consig = Consignacion::where("cliente_id", $cliente)
+                                    ->fechaenvio($fecha)
+                                    ->notap($nota)
+                                    ->guiar($guia)
+                                    ->get();
+        }else{
+
+            $consig = Consignacion::where("cliente_id", $cliente)
+                                    ->where("status", 1)
+                                    ->fechaenvio($fecha)
+                                    ->notap($nota)
+                                    ->guiar($guia)
+                                    ->get();
+        }
+
         $data = array();
 
         for ($i = 0; $i < count($consig); $i++) { 

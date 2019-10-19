@@ -17,6 +17,7 @@ class ConsignacionController extends Controller
         return view('consignaciones.index',[
             "consignaciones" => Consignacion::all(),
             "colecciones"    => Coleccion::all(),
+            "clientes"       => Cliente::all(),
         ]);
     }
 
@@ -74,9 +75,15 @@ class ConsignacionController extends Controller
     }
 
     // cargar datos de la consignacion - solo visualizacion
-    public function detalleConsigView($id)
+    // public function detalleConsigView($id)
+    // {
+    //     return Consignacion::detalleConsigView($id);
+    // }
+
+    // cargar datos de la consignacion - pintar html
+    public function detalleConsigGuiaNotaHtml($id)
     {
-        return Consignacion::detalleConsigView($id);
+        return Consignacion::detalleConsigGuiaNotaHtml($id);
     }
 
     /**
@@ -141,8 +148,8 @@ class ConsignacionController extends Controller
     }
 
     // cargar consignacion en select
-    public function cargarConsigSelect($cliente, $fecha, $nota, $guia)
+    public function cargarConsigSelect(Request $request, $cliente, $fecha, $nota, $guia)
     {
-        return Consignacion::cargarConsigSelect($cliente, $fecha, $nota, $guia);
+        return Consignacion::cargarConsigSelect($request, $cliente, $fecha, $nota, $guia);
     }
 }

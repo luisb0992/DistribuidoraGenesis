@@ -76,6 +76,11 @@ $(document).ready(function(){
       changeYear: true
     });
 
+    $(".fecha_2").datepicker({
+      changeMonth: true,
+      changeYear: true
+    });
+
     // numeric
     $('.numero').numeric();
     
