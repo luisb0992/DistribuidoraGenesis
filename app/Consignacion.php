@@ -181,7 +181,7 @@ class Consignacion extends Model
         }
     }
 
-    //actualizar status en consig;
+    //actualizar status en consig
     public static function updateStatusConsignacion($id, $status){
         $consig = Consignacion::findOrFail($id);
         $consig->status = $status;

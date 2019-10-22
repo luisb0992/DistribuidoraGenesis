@@ -43,7 +43,7 @@
                             <tbody>
                                 @foreach($d->modeloGuias as $m)
                                 <tr>
-                                    <td>[{{ $m->id }}]</td>
+                                    <td>[{{ $m->modelo->id }}]</td>
                                     <td>{{ $m->modelo->name }}</td>
                                     <td>{{ $m->montura }}</td>
                                     <td>{{ $m->estuche == null ? 'No posee' : $m->estuche }}</td>

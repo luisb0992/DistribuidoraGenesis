@@ -4,7 +4,7 @@
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
       <span class="text-center">
         <i class="fa fa-info"></i>
-        Si desea cambiar la cantidad de cajas, <b>seleccione en cada modelo la cantidad</b>, sino dejar tal cual  
+        Si desea cambiar la cantidad de cajas, <b>seleccionela en cada modelo</b>, sino dejar tal cual  
       </span> 
     </div>
 </div>

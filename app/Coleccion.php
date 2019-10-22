@@ -27,10 +27,15 @@ class Coleccion extends Model
 
     public function cmCount(){
 		return $this->cm()->count();
-	 }
+	}
 
     public function modelos($id){
     	return Modelo::where("coleccion_id", $id)->where("status_id", "<>", 5)->get()->groupBy("name");
+    }
+
+    public function countModelos(){
+        return Modelo::where("coleccion_id", $this->id)
+                    ->get()->groupBy("name")->count();
     }
 
     public function comodelos(){

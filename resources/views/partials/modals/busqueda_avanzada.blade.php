@@ -12,6 +12,7 @@
 				@includeIf($body)
 			</div>
 			<div class="modal-footer">
+				<input type="button" class="btn btn-danger" data-dismiss="modal" value="Cerrar">
 				@includeIf($footer)
 			</div>
 		</div>

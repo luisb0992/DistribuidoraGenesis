@@ -21,7 +21,6 @@
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-lg-12">
             <div class="box box-danger box-solid">
@@ -129,7 +128,6 @@
         });
     });
 
-    // calcular restante del pago a editar
     function calcularRestanteEdit(monto){
         valor = (monto.value < 0) ? monto.value = 0 : monto.value = monto.value;
         $("#restante_edit").val((parseFloat($("#total_deuda_edit").val()) - parseFloat(valor)));

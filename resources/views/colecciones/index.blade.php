@@ -53,7 +53,7 @@
 				<tbody class="text-center">
 					@foreach($colecciones as $d)
 						<tr>
-							<td>000{{ $d->id }}</td>
+							<td>{{ $d->id }}</td>
 							<td>{{ $d->name }}</td>
 							<td>{{ $d->fecha_coleccion }}</td>
 							<td class="text-left">
@@ -90,13 +90,10 @@
 								@endforeach
 							</td>
 							<td>
-								{{ $d->modelos($d->id)->count() }}
-								<span class="">
-									<a href="{{ route('colecciones.show',[$d->id]) }}" class="btn btn-default"
-										data-toggle="tooltip" data-placement="top" title="Añadir mas modelos">
-										<i class="fa fa-plus-circle"></i>
-									</a>
-								</span>
+								{{ $d->countModelos() }}
+								<a href="{{ route('colecciones.show', $d->id) }}" class="btn btn-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Añadir mas modelos">
+									<i class="fa fa-plus-circle"></i>
+								</a>
 							</td>
 							<td>{{ $d->proveedor->nombre }}</td>
 						</tr>

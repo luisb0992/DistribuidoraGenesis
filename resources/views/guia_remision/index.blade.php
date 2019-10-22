@@ -252,7 +252,7 @@ $("#form_create_guia").on('submit', function(e) {
 			if (data == 2) {
 				mensajes('Alerta!', 'Nº de Guia repetido, verifique', 'fa-warning', 'red');
 				btn.text("Guardar").removeAttr("disabled");
-			}else{
+			}else if(data == 1){
 				mensajes('Listo!', 'Creada con exito..... espere', 'fa-check', 'green');
 			    form[0].reset();
 				$("#create_guia").modal('toggle');

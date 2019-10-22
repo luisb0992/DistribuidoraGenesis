@@ -143,8 +143,13 @@
         <label>Nº Pedido</label>
         <p class="list-group-item" id="n_pedido_consig"></p>
     </div>
-    <div class="form-group col-lg-9">
+    <div class="form-group col-lg-5">
         <label>Direccion</label> 
         <p class="list-group-item" id="dir_nota_consig"></p>
+    </div>
+
+    <div class="form-group col-lg-4">
+        <label>Total (S /)</label> 
+        <p class="list-group-item" id="total_nota_consig"></p>
     </div>
 </div>

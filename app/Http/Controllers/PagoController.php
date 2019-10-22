@@ -14,10 +14,10 @@ class PagoController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
         return view("pagos.index", [
             "pagos"          => Pago::all(),
-            "ventas"         => Venta::orderBy("id", "DESC")->get(),
+            "ventas"         => Venta::all(),
             "tipo_abono"     => TipoAbono::all(),
             "status_letra"   => StatusLetra::all(),
             "protesto_letra" => ProtestoLetra::all(),
@@ -96,4 +96,5 @@ class PagoController extends Controller
     {
         //
     }
+
 }

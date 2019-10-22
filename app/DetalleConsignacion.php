@@ -38,7 +38,6 @@ class DetalleConsignacion extends Model
     }
 
    public static function modeloRetornadoOrConsignado($request){
-        
         for ($i = 0; $i < count($request->modelo_id) ; $i++) {
             $id = DetalleConsignacion::where("consignacion_id", $request->id_consig)
                                         ->where("modelo_id", $request->modelo_id[$i])->value("id");
@@ -49,12 +48,13 @@ class DetalleConsignacion extends Model
                 $total_montura  = $data->montura - $request->montura[$i]; // calcular modelos restantes para ser devueltos
                 $data->montura  = $request->montura[$i];
                 $data->status   = 3; // consignado
-                Modelo::descontarMonturaToModelosToConsignacion($request->modelo_id[$i], $total_montura);
+                Modelo::actualizarMonturasEnModelo($request->modelo_id[$i], $total_montura, 3, $proced = "suma");
             }else{
+                Modelo::actualizarMonturasEnModelo($request->modelo_id[$i], $data->montura, 3, $proced = "suma");
                 $data->status    = 2; // recibido y devuelto a almacen
                 $data->montura   = 0;
-                Modelo::descontarMonturaToModelosToConsignacion($request->modelo_id[$i], $data->montura);
             }
+
             $data->save();
         }
 
@@ -67,7 +67,7 @@ class DetalleConsignacion extends Model
         if (count($query) > 0) {
             for ($m = 0; $m < count($query); $m++) { 
                 $data = DetalleConsignacion::findOrFail($query[$m]->id);  
-                Modelo::descontarMonturaToModelosToConsignacion($query[$m]->modelo_id, $data->montura);
+                Modelo::actualizarMonturasEnModelo($query[$m]->modelo_id, $data->montura, 3, $proced = "suma");
                 $data->status   = 2; // recibido y devuelto a almacen
                 $data->montura  = 0;
                 $data->save();

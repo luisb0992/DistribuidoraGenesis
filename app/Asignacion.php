@@ -343,14 +343,14 @@ class Asignacion extends Model
     public static function modeloRetornadoOrAsignados($request){
         
         for ($i = 0; $i < count($request->asignacion_id) ; $i++) {
-            $data = Asignacion::findOrFail($request->asignacion_id[$i]);                            
+            $data = Asignacion::findOrFail($request->asignacion_id[$i]);                         
             
             if ($request->check_model[$i] == 1 && $request->montura[$i] > 0) {  
-                Modelo::descontarMonturaToModelosToAsignacion($request->modelo_id[$i], $data->monturas - $request->montura[$i]);
+                Modelo::actualizarMonturasEnModelo($request->modelo_id[$i], $data->monturas - $request->montura[$i], 2, $proced = "suma");
                 $data->monturas  = 0; // calcular modelos restantes para ser devueltos;
                 $data->status    = 3;
             }else{
-                Modelo::descontarMonturaToModelosToAsignacion($request->modelo_id[$i], $data->monturas);
+                Modelo::actualizarMonturasEnModelo($request->modelo_id[$i], $data->monturas, 2, $proced = "suma");
                 $data->monturas  = 0;
                 $data->status    = 2;
             }
@@ -359,7 +359,9 @@ class Asignacion extends Model
         }
    }
 
-    //-------------------------------------------- Rutas asignadas a usuarios ----------------------------
+    //--------------------------------- 
+    // --> Rutas asignadas a usuarios -
+    // --------------------------------
 
     // Asignacion de rutas a users
     public static function saveAsigRutasStore($request)

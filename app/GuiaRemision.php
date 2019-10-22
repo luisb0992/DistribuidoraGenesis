@@ -54,7 +54,9 @@ class GuiaRemision extends Model
       return $this->belongsToMany('App\GuiaRemision','modelo_guias');
     }
 
-    // ------------------- funciones personalizadas ---------------------------
+    // ------------------------------- 
+    // ---> funciones personalizadas -
+    // -------------------------------
 
     public static function guiaEdit($id){
         $guia = GuiaRemision::findOrFail($id);
@@ -63,7 +65,7 @@ class GuiaRemision extends Model
         foreach ($guia->detalleGuia as $dg) {
             $data [] = "<tr>
                             <td>
-                                <input value='".$dg->id."' type='hidden' name='id_dg[]'>
+                                <input value='".$dg->modelo_id."' type='hidden' name='id_dg[]'>
                                 <select class='form-control' name='ref_item_id[]'>
                                     ".RefItem::elegirTipoItem($dg->ref_item_id)."
                                 </select>
@@ -123,13 +125,46 @@ class GuiaRemision extends Model
     }
 
     public static function storeGuiaRemision($request){
+
         if (GuiaRemision::where("serial", $request->serial.'-'.$request->guia)->count() > 0) {
+            
             return response()->json(2);
+        
         }else{
-            GuiaRemision::guiaStore($request, $request->motivo_guia_id);
+
+            $data = GuiaRemision::create([
+                'serial'          => $request->serial.'-'.$request->guia,
+                'motivo_guia_id'  => $request->motivo_guia_id,
+                'dir_salida'      => $request->dir_salida,
+                'dir_llegada'     => $request->dir_llegada,
+                'cliente_id'      => $request->cliente_id,
+                'user_id'         => Auth::id(),
+            ]);
+
+            for ($dg = 0; $dg < count($request->ref_item_id) ; $dg++) {
+                $data->detalleGuia()->create([
+                    'ref_item_id'   => $request->ref_item_id[$dg],
+                    'cantidad'      => $request->cantidad[$dg],
+                    'peso'          => $request->peso[$dg],
+                    'descripcion'   => $request->descripcion[$dg],
+                ]);
+            }
+
+            for ($i = 0; $i < count($request->modelo_id) ; $i++) {
+                if ($request->montura[$i] > 0) {    
+                    $data->modeloGuias()->create([
+                        'modelo_id'   => $request->modelo_id[$i],
+                        'montura'     => $request->montura[$i],
+                        'estuche'     => $request->estuche[$i],
+                    ]);
+                }
+            }
+
+            BitacoraUser::saveBitacora("Guia de remision (".$data->serial.") creada");
+
             for ($i = 0; $i < count($request->modelo_id) ; $i++) {
                 if ($request->montura[$i] != 0 || $request->montura[$i] != null) {
-                    Modelo::descontarMonturaToModelos($request->modelo_id[$i], $request->montura[$i]);
+                    Modelo::actualizarMonturasEnModelo($request->modelo_id[$i], $request->montura[$i], 4, $proced = "resta");
                 }
             }
         }
@@ -181,11 +216,13 @@ class GuiaRemision extends Model
         DB::transaction(function() use ($id) {
             $guia = GuiaRemision::findOrFail($id);
             $mg = ModeloGuia::where("guia_remision_id", $id)->get(["modelo_id", "montura"]);
-
             for ($i = 0; $i < count($mg); $i++) {
-                $asig = Asignacion::where("user_id", \Auth::user()->id)->where("modelo_id", $mg[$i]->modelo_id)->first();
-                $asig->monturas = $asig->monturas + $mg[$i]->montura;
-                $asig->save();
+                $asig = Asignacion::where("modelo_id", $mg[$i]->modelo_id)->first();
+                dd($asig);
+                if ($asig) {
+                    $asig->monturas = $asig->monturas + $mg[$i]->montura;
+                    $asig->save();
+                }
             }
 
             BitacoraUser::saveBitacora("Eliminacion de guia de remision (".$guia->serial.")");

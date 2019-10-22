@@ -127,7 +127,7 @@ class Venta extends Model
             $n = NotaPedido::saveNotaPedido($request, $motivo = 1); // guardar nota pedido
 
             for ($i = 0; $i < count($request->check_model) ; $i++) {
-                Modelo::descontarMonturaToModelos($request->modelo_id[$i], $request->montura[$i]); // descontar modelos vendidos
+                Modelo::actualizarMonturasEnModelo($request->modelo_id[$i], $request->montura[$i], 4, $proced = "resta"); 
             }
             
             if ($request->checkbox_factura) {
@@ -166,7 +166,7 @@ class Venta extends Model
         }
     }
 
-    // logica para guardar ventas y facturas
+    // logica para guardar ventas consignadas
     public static function storeVentaConsignacion($request){
 
         $db = DB::transaction(function() use ($request) {
@@ -187,7 +187,7 @@ class Venta extends Model
                 }
             }
 
-            Consignacion::updateStatusConsignacion($request->id_consig, $status = 2); // status 2 = consignacion procesada
+            Consignacion::updateStatusConsignacion($request->id_consig, 2); // status 2 = consignacion procesada
 
             DetalleConsignacion::modeloRetornadoOrConsignado($request); // sumar y retornar el modelo al almacen
 
@@ -207,7 +207,6 @@ class Venta extends Model
         }
     }
 
-    // logica para guardar  venta asignacion
     public static function storeVentaAsignacion($request){
         
         $db = DB::transaction(function() use ($request) {

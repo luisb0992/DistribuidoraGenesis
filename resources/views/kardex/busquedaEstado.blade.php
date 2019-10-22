@@ -66,7 +66,7 @@
                                 @if($des <> "almacen")
                                     <td>{{ $d->modelo_id }}</td>
                                     <td>{{ $d->modelo->name }}</td>
-                                    <td>{{ !$d->montura ? $d->monturas : $d->montura}}</td>
+                                    <td>{{ !$d->montura ? $d->monturas : $d->montura }}</td>
                                     <td>{{ !$d->estuches ? $d->estuche : $d->estuches  }}</td>
                                     <td>
                                         {{ $d->modelo->marca->name.' ('.$d->modelo->marca->material->name.') - '.$d->modelo->coleccion->name  }}

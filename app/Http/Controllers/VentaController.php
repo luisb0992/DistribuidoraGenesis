@@ -73,17 +73,31 @@ class VentaController extends Controller
         ]);
     }
 
-
+    /**
+     * @param  CreateVentaRequest peticion
+     * @return [objeto]
+     * Guardar la venta directa y sus subprocesos
+     */
     public function storeVentaDirecta(CreateVentaRequest $request)
     {   
         return Venta::storeVentaDirecta($request);
     }
 
+    /**
+     * @param  CreateVentaRequest peticion
+     * @return [objeto]
+     * Guardar la venta por asignacion y sus subprocesos
+     */
     public function storeVentaAsignacion(CreateVentaRequest $request)
     {   
         return Venta::storeVentaAsignacion($request);
     }
 
+    /**
+     * @param  CreateVentaRequest peticion
+     * @return [objeto]
+     * Guardar la venta por consignacion y sus subprocesos
+     */
     public function storeVentaConsignacion(CreateVentaRequest $request)
     {   
         return Venta::storeVentaConsignacion($request);

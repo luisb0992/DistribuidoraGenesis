@@ -315,40 +315,40 @@
         });
 
         // añadir marcas
-    		$(".btn_acm").click(function(e) {
-    			e.preventDefault();
-    			var btn = $(".btn_acm");
-    			var token = $("#token").val();
-    			var ruta = '{{ route("saveMC") }}';
+		$(".btn_acm").click(function(e) {
+			e.preventDefault();
+			var btn = $(".btn_acm");
+			var token = $("#token").val();
+			var ruta = '{{ route("saveMC") }}';
 
-    			btn.text("Espere un momento...");
-    			btn.addClass("disabled");
+			btn.text("Espere un momento...");
+			btn.addClass("disabled");
 
-    			$.ajax({
-    				url: ruta,
-    				headers: {'X-CSRF-TOKEN': token},
-    				type: 'POST',
-    				dataType: 'JSON',
-    				data: {marca: $("#marca_id").val(), rueda: $('#ru').val(), coleccion: $('#coleccion').val()},
-    			})
-    			.done(function(data) {
-    				$("#cm").modal('toggle');
-    			    btn.text("Guardar");
-    			    btn.removeClass("disabled");
-    			    cargarMarcas();
-              cargarMarcasEnModal();
-              mensajes("Listo!", "Marca añadida a la coleccion", "fa-check", "green");
-    			})
-    			.fail(function(data) {
-    				btn.text("Guardar");
-    				btn.removeClass("disabled");
-            mensajes("Alerta!", "No se encuentran marcas disponibles, ya fueron añadidas", "fa-warning", "red");
-    			})
-    			.always(function() {
-    				console.log("complete");
-    			});
+			$.ajax({
+				url: ruta,
+				headers: {'X-CSRF-TOKEN': token},
+				type: 'POST',
+				dataType: 'JSON',
+				data: {marca: $("#marca_id").val(), rueda: $('#ru').val(), coleccion: $('#coleccion').val()},
+			})
+			.done(function(data) {
+				$("#cm").modal('toggle');
+			    btn.text("Guardar");
+			    btn.removeClass("disabled");
+			    cargarMarcas();
+                cargarMarcasEnModal();
+                mensajes("Listo!", "Marca añadida a la coleccion", "fa-check", "green");
+			})
+			.fail(function(data) {
+				btn.text("Guardar");
+				btn.removeClass("disabled");
+                mensajes("Alerta!", "No se encuentran marcas disponibles, ya fueron añadidas", "fa-warning", "red");
+			})
+			.always(function() {
+				console.log("complete");
+			});
 
-    		});
+		});
 
 </script>
 @endsection

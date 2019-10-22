@@ -81,7 +81,7 @@
                                     </td>
   									<td class="text-nowrap">
                                         <span data-toggle="tooltip" title="Detalles de la consignacion">
-                                            <a href="#detalle_consig" class="btn bg-navy btn-xs btn_detalle_consig" data-toggle="modal" data-target="#detalle_consig" id="" data-id="{{ $d->id }}">
+                                            <a href="#detalle_consig" class="btn bg-navy btn-xs btn_detalle_consig" data-toggle="modal" data-target="#detalle_consig" data-id="{{ $d->id }}">
                                                 <i class="fa fa-eye"></i>
                                             </a>
                                         </span>
@@ -134,9 +134,7 @@
     $(".bec").click(function(e) {
         ruta = '{{ route("consignacion.update",":value") }}';
         $("#form_edit_consig").attr("action", ruta.replace(':value', $(this).data("id")));
-
         $("#fe_en").val("");
-
         $("#fe_en").val($(this).data("fechaenvio"));
     });
 
@@ -147,8 +145,8 @@
 
     // mostrar y validar campos en consignacion y guia
     $(".btn_detalle_consig").click(function(e){
+        $("#icon-loading-consig").show();
         $.get('detalleConsig/'+$(this).data("id"), {view: 1}, function(data) {
-            $("#icon-loading").show();
             
             $('.data-table').DataTable().destroy();
             cargarDataConsignacionYModelos(data);
@@ -163,7 +161,7 @@
                 cargarGuia(data);
             }
             
-            $("#icon-loading").hide();
+            $("#icon-loading-consig").hide();
         });
     });
 
@@ -213,6 +211,107 @@
         $('table.data-table.ok').DataTable().search($(this).val()).draw();    
     });
 
+    // buscar consignacion y cargar en el select
+    $("#btn_buscar_consignacion").click(function(e){
+        var cliente = $("#cliente_bus").val();
+        var fecha = $("#fecha_env").val();
+        var notap = $("#nota_bus").val();
+        var guiar = $("#guia_bus").val();
+
+        fecha = (fecha) ? (
+                from = fecha.split("/"),
+                f = new Date(from[2], from[1], from[0]),
+                f.getFullYear() + "-" + f.getMonth() + "-" + f.getDate()
+            ) : null;
+
+        notap = (notap) ? notap : null;
+        guiar = (guiar) ? guiar : null;
+
+        if (cliente == null) {
+
+            mensajes("Alerta!", "Nada para mostrar", "fa-remove", "red");
+
+        }else{
+
+            $("#icon-buscar-consig").show();
+            $("#btn_buscar_consignacion").attr("disabled", "disabled");
+            var url ="cargarConsigSelect/"+cliente+"/"+fecha+"/"+notap+"/"+guiar+"";
+
+            $.get(url, {view: 1},function(data) {
+                $("#id_consignacion").empty().html(data);
+                $("#icon-buscar-consig").hide();
+                $("#btn_buscar_consignacion").removeAttr('disabled');
+                mensajes("Listo!", data.length+" resultados", "fa-remove", "green");
+            }); 
+        }
+    });
+
+    // ocultar carga cuando cambie algo en la busqueda
+    $('#cliente_bus, #nota_bus, #guia_bus, #fecha_env').on("change",  function(e) {
+        $("#id_consignacion").empty();
+        $("#section_guia_remision, #section_detalle_consig, #section_nota_pedido").hide(400);
+    });
+
+    // cargar consignacion, guia, nota de pedido en modal - tabla
+    $("#btn_cargar_consignacion").click(function(e){
+
+        var valor = $("#id_consignacion").val();
+
+        if (valor == null) {
+            mensajes("Alerta!", "El campo de seleccion esta vacio, seleccione un codigo", "fa-remove", "red");
+        }else{
+            $("#icon-cargar-consig").show();
+            $("#btn_cargar_consignacion").attr("disabled", "disabled");
+
+            $.get('detalleConsigGuiaNotaHtml/'+valor+'', function(data) {
+                $("#section_detalle_consig").fadeIn(400);
+
+                $('.data-table.search_consig').DataTable().destroy();
+
+                $("#cliente_consig").text(data.consig.cliente.nombre_full);
+                $("#fecha_envio_consig").text(data.consig.fecha_envio);
+                $("#data_modelos_consig").empty().append(data.modelos);
+
+                $('.data-table.search_consig').DataTable({responsive: true});
+
+                cargarGuiaRemision(data, $("#section_guia_remision"), $("#guia_consig"), $("#serie_consig"), $("#dir_salida_consig"), $("#dir_llegada_consig"), $("#data_detalles_guia_consig"));
+
+                cargarNotaPedido(data, $("#section_nota_pedido"), $("#n_pedido_consig, #dir_nota_consig, #total_nota_consig"), $("#n_pedido_consig"), $("#dir_nota_consig"), $("#total_nota_consig"));
+                
+                
+                $("#icon-cargar-consig").hide();
+                $("#btn_cargar_consignacion").removeAttr('disabled');
+            }); 
+        }
+    });
+
+    // FUNCIONES ----------------------------------------------------------------------------------------
+    function cargarNotaPedido(data, section, ele, npedido, dir, total){
+        if (data.consig.notapedido == null) { 
+            section.hide(); 
+            ele.text('');
+        }else{
+            section.show();
+            npedido.text(data.consig.notapedido.n_pedido);
+            total.text(data.consig.notapedido.total);
+            dir.text(data.dir_nota);
+        }
+    }
+
+    function cargarGuiaRemision(data, section, status, serie = null, dir_salida = null, dir_llegada = null, det_guia = null){
+        if (data.consig.guia == null) {
+            section.hide();
+            status.empty().append("<i class='fa fa-remove text-danger'></i> N/A");
+        }else{
+            section.show();
+            status.empty().append("<i class='fa fa-check text-success'></i> Posee");
+            (serie != null) ? serie.text(data.consig.guia.serial) : false;
+            (dir_salida != null) ? dir_salida.text(data.dir_salida) : false;
+            (dir_llegada != null) ?  dir_llegada.text(data.dir_llegada) : false;
+            (det_guia != null) ? det_guia.empty().append(data.data_det_guia) : false;
+        }
+    }
+
     // Calcular monto y total
     function calcularMontoTotal(){
         total = 0; error = false;
@@ -259,96 +358,5 @@
         }
     }
 
-    // buscar consignacion y cargar en el select
-    $("#btn_buscar_consignacion").click(function(e){
-        var cliente = $("#cliente_bus").val();
-        var fecha = $("#fecha_env").val();
-        var notap = $("#nota_bus").val();
-        var guiar = $("#guia_bus").val();
-
-        fecha = (fecha) ? (
-                from = fecha.split("/"),
-                f = new Date(from[2], from[1], from[0]),
-                f.getFullYear() + "-" + f.getMonth() + "-" + f.getDate()
-            ) : null;
-
-        notap = (notap) ? notap : null;
-        guiar = (guiar) ? guiar : null;
-
-        if (cliente == null) {
-
-            mensajes("Alerta!", "Nada para mostrar", "fa-remove", "red");
-
-        }else{
-
-            $("#icon-buscar-consig").show();
-            $("#btn_buscar_consignacion").attr("disabled", "disabled");
-            var url ="cargarConsigSelect/"+cliente+"/"+fecha+"/"+notap+"/"+guiar+"";
-
-            $.get(url, {view: 1},function(data) {
-                $("#id_consignacion").empty().html(data);
-                $("#icon-buscar-consig").hide();
-                $("#btn_buscar_consignacion").removeAttr('disabled');
-                mensajes("Listo!", data.length+" resultados", "fa-remove", "green");
-            }); 
-        }
-    });
-
-    // evitar el siguiente si se cambia cualquier valor en la busqueda principal
-    $('#cliente_bus, #nota_bus, #guia_bus, #fecha_env').on("change",  function(e) {
-        $("#id_consignacion").empty();
-        $("#section_guia_remision, #section_detalle_consig, #section_nota_pedido").hide(400);
-    });
-
-    // cargar consignacion en la tabla
-    $("#btn_cargar_consignacion").click(function(e){
-
-        var valor = $("#id_consignacion").val();
-
-        if (valor == null) {
-            mensajes("Alerta!", "El campo de seleccion esta vacio, seleccione un codigo", "fa-remove", "red");
-        }else{
-            $("#icon-cargar-consig").show();
-            $("#btn_cargar_consignacion").attr("disabled", "disabled");
-
-            $.get('detalleConsigGuiaNotaHtml/'+valor+'', function(data) {
-                $("#section_detalle_consig").fadeIn(400);
-
-                $('.data-table.search_consig').DataTable().destroy();
-
-                $("#cliente_consig").text(data.consig.cliente.nombre_full);
-                $("#fecha_envio_consig").text(data.consig.fecha_envio);
-                $("#data_modelos_consig").empty().append(data.modelos);
-
-                $('.data-table.search_consig').DataTable({responsive: true});
-
-                if (data.consig.guia == null) {
-                    $("#section_guia_remision").hide(400);
-                    $("#guia_consig").empty().append("<i class='fa fa-remove text-danger'></i> Guia de remision N/A");
-                }else{
-                    $("#section_guia_remision").show(400);
-                    $("#guia_consig").empty().append("<i class='fa fa-check text-success'></i> Guia de remision");
-
-                    $("#serie_consig").text(data.consig.guia.serial);
-                    $("#dir_salida_consig").text(data.dir_salida);
-                    $("#dir_llegada_consig").text(data.dir_llegada);
-                    $("#data_detalles_guia_consig").empty().append(data.data_det_guia);
-                }
-
-                if (data.consig.notapedido == null) {
-                    $("#section_nota_pedido").hide(400);
-                    $("#n_pedido_consig, #dir_nota_consig").text('');
-                }else{
-                    $("#section_nota_pedido").show(400);
-
-                    $("#n_pedido_consig").text(data.consig.notapedido.n_pedido);
-                    $("#dir_nota_consig").text(data.dir_nota);
-                }
-                
-                $("#icon-cargar-consig").hide();
-                $("#btn_cargar_consignacion").removeAttr('disabled');
-            }); 
-        }
-    });
 </script>    
 @endsection

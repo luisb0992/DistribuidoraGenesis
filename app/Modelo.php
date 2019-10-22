@@ -113,7 +113,9 @@ class Modelo extends Model
         return $modelos;
     }
 
-    //-------------------------------------- funciones personalizadas --------------------------------------------
+    //-------------------------------
+    //---> funciones personalizadas -
+    //-------------------------------
     
     public function precioA($coleccion, $marca){
         return  ColeccionMarca::where([
@@ -153,19 +155,29 @@ class Modelo extends Model
         return $data->save();
     }
 
-    // descontar consignacion - modelos
-    public static function descontarMonturaToModelosToConsignacion($id, $montura){
+    /**
+     * @param  [id = int]
+     * @param  [montura = int]
+     * @param  [status = int]
+     * @param  [proced = string]
+     * @return [modelo actualizado - restando]
+     * Descontar monturas en el modelo con su respectivo cambio de status
+     */
+    public static function actualizarMonturasEnModelo($id, $montura, $status, $proced){
+        
         $data = Modelo::findOrFail($id);
-        if (($data->montura + $montura) == 0) {
-            $data->status_id = 2;
-        }else{
-            $data->status_id = 1;
+        if ($proced == "resta") {
+            ($data->montura - $montura) == 0 ? $data->status_id = $status : $data->status_id = 1;
+            $data->montura = $data->montura - $montura;
+        }else if($proced == "suma"){
+            ($data->montura + $montura) == 0 ? $data->status_id = $status : $data->status_id = 1;
+            $data->montura = $data->montura + $montura;
         }
-        $data->montura = $data->montura + $montura;
+
         return $data->save();
     }
 
-    // descontar asignacion - modelos
+    // usada por mov devolucion ********
     public static function descontarMonturaToModelosToAsignacion($id, $montura){
         $data = Modelo::findOrFail($id);
         if (($data->montura + $montura) == 0) {

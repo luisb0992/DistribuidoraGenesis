@@ -19,10 +19,18 @@
             <label for="">Venta * </label>
             <select class="form-control" name="venta_id" id="venta_id" required="">
                 <option value="">seleccione...</option>
-                @foreach($ventas as $m)
-                <option value="{{ $m->id }}">
-                    {{ $m->id.' - '.$m->createF() }}
-                </option>
+                @foreach($ventas as $v)
+                    @if($v->pagos->count() > 0)
+                        @if($v->pagos->last()->restante <> 0)
+                        <option value="{{ $v->id }}">
+                            {{ $v->id.' - '.$v->createF() }}
+                        </option>
+                        @endif
+                    @else
+                        <option value="{{ $v->id }}">
+                            {{ $v->id.' - '.$v->createF() }}
+                        </option>     
+                    @endif    
                 @endforeach
             </select>
         </div>
