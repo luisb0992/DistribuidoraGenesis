@@ -214,19 +214,11 @@ class GuiaRemision extends Model
     public static function guiaDestroy($id){
         
         DB::transaction(function() use ($id) {
-            $guia = GuiaRemision::findOrFail($id);
-            $mg = ModeloGuia::where("guia_remision_id", $id)->get(["modelo_id", "montura"]);
-            for ($i = 0; $i < count($mg); $i++) {
-                $asig = Asignacion::where("modelo_id", $mg[$i]->modelo_id)->first();
-                dd($asig);
-                if ($asig) {
-                    $asig->monturas = $asig->monturas + $mg[$i]->montura;
-                    $asig->save();
-                }
-            }
 
+            $guia = GuiaRemision::findOrFail($id);
             BitacoraUser::saveBitacora("Eliminacion de guia de remision (".$guia->serial.")");
             GuiaRemision::destroy($id);
+        
         });
         
         return redirect('guiaRemision')->with([

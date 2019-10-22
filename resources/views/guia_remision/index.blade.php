@@ -39,6 +39,7 @@
 					<table class="table data-table table-bordered table-hover">
 						<thead class="label-danger">
 							<tr>
+								<th class="text-center">Codigo</th>
 								<th class="text-center">Serial-Guia</th>
 								<th class="text-center">Cliente</th>
 								<th class="text-center">Salida</th>
@@ -52,6 +53,7 @@
 						<tbody class="">
 							@foreach($guias as $d)
 								<tr>
+									<td><b>{{ $d->id }}</b></td>
 									<td><b>{{ $d->serial }}</b></td>
 									<td>{{ $d->cliente->nombre_full ?? '' }}</td>
 									<td>
